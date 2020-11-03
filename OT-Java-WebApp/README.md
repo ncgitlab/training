@@ -33,7 +33,7 @@ upload.dir=c:/uploads
 
 Running this application manually is pretty straight forward.
 
-**For Compilation***
+**For Compilation**
 
 ```shell
 mvn clean package
