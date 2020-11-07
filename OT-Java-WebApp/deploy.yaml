@@ -1,0 +1,9 @@
+# copywarfile.yml
+---
+- hosts: all 
+  become: true
+  tasks: 
+    - name: copy jar/war onto tomcat servers
+        copy:
+          src: /var/lib/jenkins/workspace/simple-ci-cd/OT-Java-WebApp/target/*.war
+          dest: /var/lib/tomcat9/webapps
