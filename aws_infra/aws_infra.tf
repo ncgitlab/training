@@ -69,29 +69,19 @@ resource "aws_route_table" "prd_rt" {
  tags = {
         Name = "prd_rt"
 }
-} # end resource
+}
 # Create the Internet Access
 resource "aws_route" "prd_internet_access" {
   route_table_id         = aws_route_table.prd_rt.id
   destination_cidr_block = var.destinationCIDRblock
   gateway_id             = aws_internet_gateway.prd_gw.id
-} # end resource
+}
 # Associate the Route Table with the Subnet
 resource "aws_route_table_association" "prd_rt_association" {
   count = length(var.subnetCIDRblock)
   subnet_id      = element(aws_subnet.prd_pb_subnet.*.id,count.index)
   route_table_id = aws_route_table.prd_rt.id
-} # end resource
-/*
-resource "aws_instance" "my_instance" {
-    ami = "ami-0e1cbd93e3eba6496"
-    instance_type = "t2.micro"
-    subnet_id = element(aws_subnet.My_VPC_Subnet.*.id,count.index)
-    count = length(var.subnetCIDRblock)
-    security_groups = ["aws_security_group.My_VPC_Security_Group.id"]
-    key_name = "jenkins"
 }
-*/
 #creating application target
 resource "aws_lb_target_group" "prd_tg" {
   name     = "prd-tg"
@@ -106,13 +96,7 @@ resource "aws_lb_target_group" "prd_tg" {
     interval            = 10
   }
 }
-/*
-resource "aws_lb_target_group_attachment" "test" {
-  target_group_arn = aws_lb_target_group.my-target.arn
-  target_id        = aws_instance.test.id
-  port             = 80
-}
-*/
+#create security group for instance
 resource "aws_security_group" "prd_alb_security_grp" {
   name = "terraform-alb"
   vpc_id       = aws_vpc.prd_vpc.id
