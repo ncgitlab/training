@@ -62,7 +62,7 @@ resource "aws_internet_gateway" "prd_gw" {
  tags = {
         Name = "prd_gw"
 }
-} # end resource
+}
 # Create the Route Table
 resource "aws_route_table" "prd_rt" {
  vpc_id = aws_vpc.prd_vpc.id
@@ -113,7 +113,7 @@ resource "aws_security_group" "prd_alb_security_grp" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
+#create application loadbalancer
 resource "aws_lb" "prd_alb" {
   name               = "prd-alb"
   internal           = false
@@ -125,7 +125,7 @@ resource "aws_lb" "prd_alb" {
     Environment = "production"
   }
 }
-
+# create loadbalancer listener
 resource "aws_lb_listener" "backend" {
   load_balancer_arn = aws_lb.prd_alb.arn
   port              = "80"
@@ -136,20 +136,16 @@ resource "aws_lb_listener" "backend" {
     target_group_arn = aws_lb_target_group.prd_tg.arn
   }
 }
-
+#create launch configuration for ASG
 resource "aws_launch_configuration" "prd_launch_conf" {
   name_prefix   = "terraform-prd"
   image_id      = var.tomcat_ami
   instance_type = var.aws_instance_type
   security_groups = [aws_security_group.prd_security_grp.id]
   key_name = var.key_name
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
-
-  resource "aws_autoscaling_group" "prd_asg" {
+#create autoscaling group
+resource "aws_autoscaling_group" "prd_asg" {
     launch_configuration = aws_launch_configuration.prd_launch_conf.id
     health_check_type         = "ELB"
     desired_capacity          = 2
@@ -157,6 +153,10 @@ resource "aws_launch_configuration" "prd_launch_conf" {
     max_size = 5
     vpc_zone_identifier       = aws_subnet.prd_pb_subnet.*.id
     target_group_arns = [aws_lb_target_group.prd_tg.arn]
+    
+  lifecycle {
+    create_before_destroy = true
+  }
     tag {
       key = "Name"
       value = "prd_asg"
